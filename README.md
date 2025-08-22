@@ -308,59 +308,46 @@ Found a bug? Have a feature request? Want to improve the mathematical algorithms
 
 ---
 
-## 📝 Changelog
-
-### v1.0.0 (2025-08-22)
-- ✅ Initial release with mathematical precision cleanup
-- ✅ Smart email counting across all folders
-- ✅ Advanced Drive API storage monitoring  
-- ✅ Configurable thresholds and target folders
-- ✅ Automated hourly monitoring with daily reports
-- ✅ Evidence preservation mode for security use cases
-- ✅ Comprehensive error handling and safety features
-
----
-
-## 🏷️ Use Cases
+## Use Cases
 
 **Perfect for:**
-- 📹 **Security camera systems** (Blue Iris, motion alerts)
-- 📱 **Android device accounts** (backup photos, app data)
-- 🏢 **Business Gmail accounts** with high email volume
-- 🔒 **Evidence preservation** scenarios (keep maximum data, clean minimally)
-- 🤖 **Automated systems** that send status emails
-- 📊 **Data retention compliance** (keep X amount of storage free)
+- Security camera systems (Blue Iris, motion alerts)
+- Android device accounts (backup photos, app data)
+- Business Gmail accounts with high email volume
+- Evidence preservation scenarios (keep maximum data, clean minimally)
+- Automated systems that send status emails
+- Data retention compliance (keep X amount of storage free)
 
 **Not recommended for:**
-- 📧 Personal Gmail with important emails you want to manually review
-- 💼 Legal/compliance scenarios requiring specific retention periods
-- 🧪 Accounts you're not comfortable testing automated deletion on
+- Personal Gmail with important emails you want to manually review
+- Legal/compliance scenarios requiring specific retention periods
+- Accounts you're not comfortable testing automated deletion on
 
 ---
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 **Script shows 0% storage used**
-- ✅ Ensure Drive API is enabled in Services  
-- ✅ Check script permissions were granted
-- ✅ Try running `testStorageCheck()` manually
+- Ensure Drive API is enabled in Services  
+- Check script permissions were granted
+- Try running `testStorageCheck()` manually
 
 **Emails not deleting**  
-- ✅ Ensure Gmail API is enabled in Services
-- ✅ Check target folder has emails matching your criteria
-- ✅ Verify permissions include Gmail modification
+- Ensure Gmail API is enabled in Services
+- Check target folder has emails matching your criteria
+- Verify permissions include Gmail modification
 
 **Daily reports not arriving**
-- ✅ Check spam folder
-- ✅ Verify triggers are set up correctly  
-- ✅ Test with `testDailyReport()` function
+- Check spam folder
+- Verify triggers are set up correctly  
+- Test with `testDailyReport()` function
 
 **Storage percentage not updating**
-- ✅ Google storage updates can take 5-15 minutes
-- ✅ This is normal - script accounts for this delay
-- ✅ Hourly runs prevent over-deletion
+- Google storage updates can take 5-15 minutes
+- This is normal - script accounts for this delay
+- Hourly runs prevent over-deletion
 
 ### Getting Help
 1. **Check the logs** - Google Apps Script → Executions tab
@@ -383,14 +370,20 @@ If this tool saved you time and storage headaches, consider supporting its devel
 [![Sponsor](https://img.shields.io/badge/Sponsor-💖-pink)](https://github.com/sponsors/smcneece)
 
 **Other ways to help:**
-- ⭐ Star this repository
-- 🐛 Report bugs and issues  
-- 🔄 Share with others who might benefit
-- 💡 Suggest new features and improvements
+- Star this repository
+- Report bugs and issues  
+- Share with others who might benefit
+- Suggest new features and improvements
+
+---
+
+## Tags
+
+`gmail` `storage-management` `automation` `google-apps-script` `email-cleanup` `home-assistant` `blue-iris` `frigate` `nvr` `security-cameras` `android` `backup` `mathematical-precision` `smart-cleanup`
 
 ---
 
 **Gmail Smart Storage Manager**  
 *Because storage management should be mathematical, not magical.*
 
-🧠 **Intelligent • Precise • Automated**
+**Intelligent • Precise • Automated**
