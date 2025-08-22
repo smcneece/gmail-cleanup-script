@@ -1,15 +1,15 @@
 # Gmail Smart Storage Manager
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/smcneece/gmail-smart-storage-manager)](https://github.com/smcneece/gmail-smart-storage-manager/releases)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/smcneece/gmail-smart-storage-manager.svg)](https://github.com/smcneece/gmail-smart-storage-manager/commits/main)
-[![GitHub](https://img.shields.io/github/license/smcneece/gmail-smart-storage-manager)](LICENSE)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/smcneece/gmail-cleanup-script)](https://github.com/smcneece/gmail-cleanup-script/releases)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/smcneece/gmail-cleanup-script.svg)](https://github.com/smcneece/gmail-cleanup-script/commits/main)
+[![GitHub](https://img.shields.io/github/license/smcneece/gmail-cleanup-script)](LICENSE)
 [![Maintainer](https://img.shields.io/badge/maintainer-Shawn%20McNeece%20%40smcneece-blue.svg)](https://github.com/smcneece)
 
 > [![Sponsor](https://img.shields.io/badge/Sponsor-💖-pink)](https://github.com/sponsors/smcneece) <-- Why not sponsor me, even a few bucks shows you appreciate the work and gives encouragement. You can sponsor me monthly, or just a one time thing. Check out my [other projects](https://github.com/smcneece?tab=repositories) while you're here.
 
 > ⭐ **Help Others Find This Tool!** If Gmail Smart Storage Manager is saving you from storage headaches, please star this repository to help other users discover this intelligent email cleanup solution!
 >
-> [![GitHub stars](https://img.shields.io/github/stars/smcneece/gmail-smart-storage-manager?style=social)](https://github.com/smcneece/gmail-smart-storage-manager/stargazers) [![GitHub forks](https://img.shields.io/github/forks/smcneece/gmail-smart-storage-manager?style=social)](https://github.com/smcneece/gmail-smart-storage-manager/network/members)
+> [![GitHub stars](https://img.shields.io/github/stars/smcneece/gmail-cleanup-script?style=social)](https://github.com/smcneece/gmail-cleanup-script/stargazers) [![GitHub forks](https://img.shields.io/github/forks/smcneece/gmail-cleanup-script?style=social)](https://github.com/smcneece/gmail-cleanup-script/network/members)
 
 
 > 📬 **Stay Updated:** Click the "Watch" button (top-right of this repo) → "Releases only" to get email notifications when new versions are released!
@@ -74,7 +74,7 @@ Unlike traditional email cleaners that delete by date or delete fixed amounts, t
 
 4. **Install the Script**  
    - Delete the default code
-   - Copy and paste the complete script from [`gmail-storage-manager.js`](gmail-storage-manager.js)
+   - Copy and paste the complete script from [`gmail_cleanup_script.js`](gmail_cleanup_script.js)
    - **IMPORTANT:** Edit the email addresses in the script (see Configuration section below)
    - Save the project (Ctrl+S)
 
