@@ -13,7 +13,7 @@
 
 > **Stay Updated:** Click the "Watch" button (top-right of this repo) → "Releases only" to get email notifications when new versions are released!
 
-Born from the frustration of manually managing Gmail storage filled with Blue Iris camera alerts and Home Assistant notifications in the "sent" folder. I used to have a calendar reminder to once a month go in and clean up my sent items. I'm on the free gmail plan, and 17 gigs gets filled about once a month for me with my 10 cameras sending out alert emails. I had looked at methods to do this but they required my computer be turned on. Now this thing should just run forever. 
+Born from the frustration of manually managing Gmail storage filled with Blue Iris camera alerts and Home Assistant notifications in the "sent" folder. I used to have a calendar reminder to go in once a month and clean up my sent items. I'm on the free Gmail plan, and my 17GB gets filled about once a month with my 10 cameras sending out alert emails. I had looked at methods to do this, but they all required my computer to be turned on. Now this thing should just run forever. 
 
 ---
 
@@ -27,10 +27,10 @@ Unlike traditional email cleaners that delete by date or fixed amounts, this sys
 4. **Deletes precise number** of oldest emails from your target folder
 5. **Achieves storage target in one intelligent run** instead of dozens of guessing attempts
 
-**Real Example from Testing:**
+**Example from my testing:**
 - Problem: 14% storage used (2.34GB), target 10%
 - Smart calculation: Need to free 742MB ÷ 0.52MB average = delete exactly 1,418 emails
-- Result: Deleted 1,418 emails, freed 740MB, achieved 9% storage (99.7% accuracy!)
+- Result: Deleted 1,418 emails, freed 740MB, achieved 9% storage
 - Efficiency: One 5-minute run vs. 340+ hourly guessing runs (85+ hours saved!)
 
 ---
@@ -51,9 +51,10 @@ Unlike traditional email cleaners that delete by date or fixed amounts, this sys
 
 ### Built-in Safety Features
 - **DRY_RUN testing** - Always test before enabling real deletion
-- **Multiple safety layers** - Locks, caps, age preferences, and conservative targeting
+- **Safety locks** - Prevents overlapping cleanup runs
+- **Hard caps** - Configurable maximum deletions per run
 - **Smart error handling** - Aborts safely if unable to determine storage usage
-- **Audit-ready code** - Clean, well-documented, and independently verifiable
+- **Real-time precision** - Storage monitoring during cleanup prevents over-deletion
 
 ---
 
@@ -63,27 +64,23 @@ Unlike traditional email cleaners that delete by date or fixed amounts, this sys
 - **Mathematical precision** - Calculates exact emails to delete, no guessing
 - **Real size calculations** - Uses Gmail API sizeEstimate instead of fake estimates
 - **Smart sampling** - Analyzes 200 emails for accurate average calculations
-- **99.7% accuracy** - Proven mathematical precision in real-world testing
-- **4x performance improvement** - Optimized batch processing and API calls
+- **Performance optimized** - 4x faster than original with batch processing
 
 ### Safety & Testing
 - **DRY_RUN mode** - Test safely without actually deleting emails
 - **Safety locks** - Prevents overlapping cleanup runs
 - **Hard caps** - Configurable maximum deletions per run
-- **Age-aware targeting** - Prefers older emails while ensuring cleanup success
-- **Emergency override** - Critical storage levels bypass conservative targeting
 - **Real-time precision** - Storage monitoring during cleanup prevents over-deletion
 
 ### Smart Automation
 - **Automatic Google storage monitoring** - Uses Drive API for accurate total storage across Gmail + Drive + Photos  
 - **Configurable storage thresholds** - Set your own trigger levels (default: 75%)
-- **One-variable targeting** - Simply set TARGET_FOLDER, script auto-builds safe queries
-- **Conservative targeting** - Automatically excludes starred and important emails
+- **Simple targeting** - Just specify TARGET_FOLDER, script deletes oldest first
 - **Hourly intelligent monitoring** - Runs only when needed, calculates precise cleanup
 - **Daily email reports** - Detailed storage statistics and cleanup summaries
 
 ### Reliability
-- **Evidence preservation mode** - Keeps maximum emails for forensic/security purposes
+- **Simple and efficient** - Deletes oldest emails first until storage target reached
 - **Batch processing with rate limiting** - Respects Gmail API limits
 - **Comprehensive error handling** - Email notifications for any issues
 - **AI-audited code** - Reviewed by Google Gemini and ChatGPT for safety
@@ -178,8 +175,6 @@ var TARGET_FOLDER = 'in:trash'; // Test on trash folder first
 
 // Safety Limits
 var MAX_DELETE_PER_RUN = 2000; // Hard cap per cleanup run
-var MIN_AGE_DAYS = 7; // Prefer emails older than this
-var EMERGENCY_THRESHOLD = 0.90; // 90%+ ignores age limits
 ```
 
 ### Production Settings (After Testing)
@@ -196,7 +191,7 @@ var REPORT_EMAIL = ''; // Auto-detects your Gmail account
 ```
 
 ### Target Folder Options
-The script automatically builds safe queries from your target folder:
+The script automatically targets your specified folder:
 
 ```javascript
 // Common configurations:
@@ -207,19 +202,7 @@ var TARGET_FOLDER = 'from:camera@home';  // Emails from specific sender
 var TARGET_FOLDER = 'in:inbox';          // Inbox cleanup (use carefully)
 ```
 
-**How it works:** The script automatically adds `-is:starred -in:important` to protect your important emails, so `'in:sent'` becomes `'in:sent -is:starred -in:important older_than:7d'`.
-
-### Configuration Simplified
-**Previous versions** required editing multiple variables that could conflict. **Now you only edit one:**
-
-```javascript
-// Just change this one line for different targets:
-var TARGET_FOLDER = 'in:sent';    // The script auto-builds everything else
-```
-
-The script automatically creates the appropriate queries:
-- **Normal mode:** `TARGET_FOLDER + ' -is:starred -in:important older_than:7d'`
-- **Emergency mode:** Just `TARGET_FOLDER` (removes all restrictions)
+**How it works:** The script deletes the oldest emails first from your target folder until storage drops below your threshold.
 
 **Storage Threshold Examples:**
 - `0.75` = Cleanup when 75% full (recommended)
@@ -330,7 +313,6 @@ Generated: Fri Aug 22 2025 06:00:23 GMT-0700
 - Home Assistant notification emails
 - Android device accounts (backup photos, app notifications)
 - Business Gmail with high automated email volume
-- Evidence preservation scenarios (keep maximum data, clean minimally)
 - Any system that sends regular status/alert emails
 
 **Not recommended for:**
@@ -342,7 +324,7 @@ Generated: Fri Aug 22 2025 06:00:23 GMT-0700
 
 ## Performance & Efficiency
 
-**Latest Test Results (August 23, 2025):**
+**My Test Results (your results may vary):**
 - **Prediction:** Delete 580 emails (~341MB) to reduce storage from 7% to 5%
 - **Actual Result:** Deleted 580 emails (308MB) in 2 minutes 38 seconds
 - **Storage Change:** 1.14GB → 0.95GB (7% → 6% usage)
@@ -350,7 +332,7 @@ Generated: Fri Aug 22 2025 06:00:23 GMT-0700
 
 **Proven Results:**
 - **Speed improvement:** 200-email batches + 500ms delays (vs 100-email + 1000ms)
-- **Real-time precision:** Storage monitoring every 200 deletions prevents over-deletion
+- **Real-time precision:** Storage monitoring every 400 deletions prevents over-deletion
 - **Reliability:** Completes well within Google's 6-minute execution limits
 - **Efficiency:** One intelligent run vs. hundreds of guessing runs
 - **Time savings:** Hours of cleanup completed in minutes
@@ -388,20 +370,12 @@ Generated: Fri Aug 22 2025 06:00:23 GMT-0700
 
 ## Advanced Configuration
 
-### Evidence Preservation Mode
-Perfect for security cameras where you want maximum evidence retention:
+### Simple Configuration
+The script deletes oldest emails first from your target folder:
 
 ```javascript
-const STORAGE_THRESHOLD = 0.75;    // Trigger cleanup at 75%
-const TARGET_AFTER_CLEANUP = 0.73; // Stop cleanup at 73% (minimal deletion)
-```
-
-### Conservative Email Targeting
-Add age restrictions and exclusions for safer cleanup:
-
-```javascript
-// Only target old, non-important emails
-const TARGET_FOLDER = 'in:sent older_than:365d -is:starred -in:important';
+var STORAGE_THRESHOLD = 0.75;    // Trigger cleanup at 75%
+var TARGET_FOLDER = 'in:sent';   // Target sent items
 ```
 
 ---

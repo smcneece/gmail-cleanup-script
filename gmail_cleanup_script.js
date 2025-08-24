@@ -1,7 +1,7 @@
 // Gmail Smart Storage Manager
-// Version: 2025.8.3
+// Version: 2025.8.4
 // Author: Shawn McNeece (@smcneece)
-// Description: Intelligent Gmail storage management using mathematical precision
+// Description: Simple Gmail storage management using mathematical precision
 // GitHub: https://github.com/smcneece/gmail-cleanup-script
 
 // ====================================================================
@@ -12,16 +12,12 @@ var REPORT_EMAIL = ''; // Leave blank for auto-detection, or enter 'your-email@e
 // Safety Settings
 var DRY_RUN = true; // Set to false after testing - ALWAYS TEST FIRST!
 var MAX_DELETE_PER_RUN = 2000; // Hard cap per cleanup run (prevents accidental mass deletion)
-var MIN_AGE_DAYS = 7; // Prefer emails older than this, but override if storage critical
 
 // Storage Settings  
 var STORAGE_THRESHOLD = 0.75; // 75% triggers cleanup
-var TARGET_THRESHOLD_BUFFER = 0.95; // Go to 95% of threshold (slight buffer)
-var EMERGENCY_THRESHOLD = 0.90; // 90%+ ignores age limits entirely
 
 // Target Settings
-var TARGET_FOLDER = 'in:sent'; // Target these items - sent, trash, or any folder
-// CONSERVATIVE_QUERY is auto-built from TARGET_FOLDER + safety exclusions
+var TARGET_FOLDER = 'in:sent'; // Target these items - sent, trash, inbox, or any folder
 // ====================================================================
 
 function smartCleanupCheck() {
@@ -33,7 +29,7 @@ function smartCleanupCheck() {
   }
   
   try {
-    console.log('Starting smart hourly storage cleanup...');
+    console.log('Starting smart storage cleanup...');
     
     // Get current storage usage
     var storageInfo = getStorageUsage();
@@ -45,26 +41,20 @@ function smartCleanupCheck() {
     
     // Only cleanup if over threshold
     if (usagePercent > STORAGE_THRESHOLD) {
-      console.log('Storage over ' + Math.round(STORAGE_THRESHOLD * 100) + '% - calculating smart cleanup...');
+      console.log('Storage over ' + Math.round(STORAGE_THRESHOLD * 100) + '% - calculating cleanup...');
       
-      // Determine if this is an emergency (ignore age limits)
-      var isEmergency = usagePercent > EMERGENCY_THRESHOLD;
-      if (isEmergency) {
-        console.log('EMERGENCY MODE: Storage over 90% - ignoring age limits');
-      }
-      
-      // Do the smart math to figure out exactly how many emails to delete
-      var cleanupPlan = calculateSmartCleanup(usedGB, totalGB, STORAGE_THRESHOLD, TARGET_FOLDER, isEmergency);
+      // Calculate exactly how many emails to delete
+      var cleanupPlan = calculateSmartCleanup(usedGB, totalGB, STORAGE_THRESHOLD, TARGET_FOLDER);
       
       if (cleanupPlan.emailsToDelete > 0) {
         var action = DRY_RUN ? 'would delete' : 'deleting';
-        console.log('Smart cleanup plan: ' + action + ' ' + cleanupPlan.emailsToDelete + ' emails (~' + cleanupPlan.mbToFree + 'MB) from ' + TARGET_FOLDER);
+        console.log('Cleanup plan: ' + action + ' ' + cleanupPlan.emailsToDelete + ' emails (~' + cleanupPlan.mbToFree + 'MB) from ' + TARGET_FOLDER);
         
         // Execute the cleanup
-        var cleanupResult = deleteEmailBatch(TARGET_FOLDER, cleanupPlan.emailsToDelete, isEmergency);
+        var cleanupResult = deleteEmailBatch(TARGET_FOLDER, cleanupPlan.emailsToDelete);
         
         var completed = DRY_RUN ? 'simulated deletion of' : 'deleted';
-        console.log('Smart cleanup complete: ' + completed + ' ' + cleanupResult.emailsDeleted + ' emails (~' + cleanupResult.mbFreed + 'MB)');
+        console.log('Cleanup complete: ' + completed + ' ' + cleanupResult.emailsDeleted + ' emails (~' + cleanupResult.mbFreed + 'MB)');
         
         // Record this cleanup event (only if not dry run)
         if (!DRY_RUN) {
@@ -79,7 +69,7 @@ function smartCleanupCheck() {
     }
     
   } catch (error) {
-    console.error('Error in smart cleanup check:', error);
+    console.error('Error in cleanup:', error);
     // Send error notification
     try {
       var reportEmail = getReportEmail();
@@ -92,29 +82,26 @@ function smartCleanupCheck() {
   }
 }
 
-function calculateSmartCleanup(usedGB, totalGB, targetThreshold, targetFolder, isEmergency) {
+function calculateSmartCleanup(usedGB, totalGB, targetThreshold, targetFolder) {
   try {
-    console.log('Calculating smart cleanup plan...');
+    console.log('Calculating cleanup plan...');
     
     // Calculate how much storage we need to free
     var currentUsagePercent = usedGB / totalGB;
-    var targetUsagePercent = targetThreshold * TARGET_THRESHOLD_BUFFER; // Go slightly under threshold
-    var storageToFreeGB = (currentUsagePercent - targetUsagePercent) * totalGB;
+    var storageToFreeGB = (currentUsagePercent - targetThreshold) * totalGB;
     var storageToFreeMB = storageToFreeGB * 1024;
     
     console.log('Need to free: ' + storageToFreeGB.toFixed(2) + 'GB (' + Math.round(storageToFreeMB) + 'MB)');
     
-    // Get target folder emails with real size sampling
-    var conservativeQuery = targetFolder + ' -is:starred -in:important'; // Auto-build from target
-    var targetQuery = isEmergency ? targetFolder : conservativeQuery + ' older_than:' + MIN_AGE_DAYS + 'd';
-    var emailSample = sampleTargetEmails(targetQuery, 200); // Sample for average size
+    // Sample emails for size calculation
+    var emailSample = sampleTargetEmails(targetFolder, 200);
     
     if (emailSample.totalEmails === 0) {
-      console.log('No emails found in target query');
+      console.log('No emails found in target folder');
       return { emailsToDelete: 0, mbToFree: 0, averageEmailSize: 0, targetFolderCount: 0 };
     }
     
-    console.log('Target folder analysis: ' + emailSample.totalEmails + ' emails, average size: ' + emailSample.averageSize.toFixed(2) + 'MB');
+    console.log('Target folder: ' + emailSample.totalEmails + ' emails, average size: ' + emailSample.averageSize.toFixed(2) + 'MB');
     
     // Calculate how many emails to delete
     var emailsToDelete = Math.ceil(storageToFreeMB / emailSample.averageSize);
@@ -132,7 +119,7 @@ function calculateSmartCleanup(usedGB, totalGB, targetThreshold, targetFolder, i
     };
     
   } catch (error) {
-    console.error('Error calculating smart cleanup:', error);
+    console.error('Error calculating cleanup:', error);
     return { emailsToDelete: 0, mbToFree: 0, averageEmailSize: 0, targetFolderCount: 0 };
   }
 }
@@ -143,7 +130,7 @@ function sampleTargetEmails(query, sampleSize) {
     
     // Get total count first
     var totalCount = getFullEmailCount(query);
-    console.log('Found ' + totalCount + ' total emails matching query');
+    console.log('Found ' + totalCount + ' total emails in target folder');
     
     if (totalCount === 0) {
       return { totalEmails: 0, averageSize: 0 };
@@ -254,18 +241,17 @@ function getFullEmailCount(searchQuery) {
   }
 }
 
-function deleteEmailBatch(targetFolder, maxEmails, isEmergency) {
+function deleteEmailBatch(targetFolder, maxEmails) {
   var emailsDeleted = 0;
   var mbFreed = 0;
   
   try {
-    var conservativeQuery = targetFolder + ' -is:starred -in:important'; // Auto-build from target
-    var query = isEmergency ? targetFolder : conservativeQuery + ' older_than:' + MIN_AGE_DAYS + 'd';
+    var query = targetFolder;
     var action = DRY_RUN ? 'simulating deletion of' : 'deleting';
-    console.log(action + ' up to ' + maxEmails + ' emails from query: ' + query);
+    console.log(action + ' up to ' + maxEmails + ' emails from: ' + query);
     
     // Process in batches to respect API limits
-    var batchSize = 200; // Increased from 100 for better performance
+    var batchSize = 200;
     var remaining = maxEmails;
     
     while (remaining > 0 && emailsDeleted < maxEmails) {
@@ -277,8 +263,8 @@ function deleteEmailBatch(targetFolder, maxEmails, isEmergency) {
         break;
       }
       
-      // Check storage every few batches to avoid over-deletion
-      if (emailsDeleted > 0 && emailsDeleted % 200 === 0) { // Check every batch instead of every 400
+      // Check storage every 400 emails to avoid over-deletion (reduced from every 200)
+      if (emailsDeleted > 0 && emailsDeleted % 400 === 0) {
         try {
           var currentStorage = getStorageUsage();
           var currentUsagePercent = currentStorage.usedGB / currentStorage.totalGB;
@@ -298,7 +284,7 @@ function deleteEmailBatch(targetFolder, maxEmails, isEmergency) {
         
         var thread = threads[i];
         try {
-          // Calculate real size if possible
+          // Calculate size for tracking
           var threadSizeMB = 0;
           
           if (!DRY_RUN) {
@@ -359,7 +345,7 @@ function deleteEmailBatch(targetFolder, maxEmails, isEmergency) {
       
       // Delay between batches to be nice to API
       if (remaining > 0) {
-        Utilities.sleep(500); // Reduced from 1000ms for better performance
+        Utilities.sleep(500);
       }
     }
     
@@ -415,7 +401,6 @@ function getStorageUsage() {
       };
     } catch (fallbackError) {
       console.error('Both storage methods failed:', fallbackError);
-      // ABORT instead of guessing - this was a key audit point
       throw new Error('Cannot determine storage usage - aborting cleanup for safety');
     }
   }
@@ -502,7 +487,7 @@ function sendDailyReport() {
     body += '=====================\n\n';
     
     if (DRY_RUN) {
-      body += '⚠️  DRY RUN MODE ACTIVE - No emails are actually deleted ⚠️\n\n';
+      body += 'WARNING: DRY RUN MODE ACTIVE - No emails are actually deleted\n\n';
     }
     
     body += 'Storage Status:\n';
@@ -528,12 +513,11 @@ function sendDailyReport() {
     
     body += 'Configuration:\n';
     body += '- Storage threshold: ' + Math.round(STORAGE_THRESHOLD * 100) + '%\n';
+    body += '- Target folder: ' + TARGET_FOLDER + '\n';
     body += '- Max delete per run: ' + MAX_DELETE_PER_RUN + '\n';
-    body += '- Min age preference: ' + MIN_AGE_DAYS + ' days\n';
-    body += '- Emergency override: ' + Math.round(EMERGENCY_THRESHOLD * 100) + '%\n';
     body += '- Dry run mode: ' + (DRY_RUN ? 'ON' : 'OFF') + '\n\n';
     
-    body += 'Smart cleanup runs hourly with mathematical precision.\n';
+    body += 'Smart cleanup runs automatically when storage exceeds threshold.\n';
     body += 'Generated: ' + new Date().toString();
     
     GmailApp.sendEmail(reportEmail, subject, body);
@@ -551,7 +535,7 @@ function countAllEmails() {
   try {
     console.log('Counting all emails (this may take a moment)...');
     
-    // Count emails in major folders - get ALL results, not just first 500
+    // Count emails in major folders
     var inboxCount = getFullEmailCount('in:inbox');
     var sentCount = getFullEmailCount('in:sent');
     var trashCount = getFullEmailCount('in:trash');
@@ -598,7 +582,7 @@ function cleanupOldCleanupData() {
 
 // Test Functions
 function testSmartCleanup() {
-  console.log('Running manual smart cleanup test...');
+  console.log('Running manual cleanup test...');
   smartCleanupCheck();
 }
 
@@ -617,10 +601,10 @@ function testDryRun() {
   console.log('Testing in dry-run mode...');
   console.log('Current DRY_RUN setting: ' + DRY_RUN);
   if (!DRY_RUN) {
-    console.log('⚠️  DRY_RUN is currently FALSE - this would actually delete emails!');
+    console.log('WARNING: DRY_RUN is currently FALSE - this would actually delete emails!');
     console.log('Set DRY_RUN = true at the top of the script to test safely');
   } else {
-    console.log('✅ DRY_RUN is ON - safe to test');
+    console.log('DRY_RUN is ON - safe to test');
     smartCleanupCheck();
   }
 }

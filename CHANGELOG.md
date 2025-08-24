@@ -5,19 +5,18 @@ All notable changes to Gmail Smart Storage Manager will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to Home Assistant versioning: `YYYY.MM.VV`.
 
-## [Unreleased] - 2025-08-22
+## [Unreleased] - 2025-08-23
 
 ### Added
 - **DRY_RUN mode** - Safe testing without actual email deletion
 - **Safety locks** - LockService prevents overlapping cleanup runs
 - **Hard caps** - MAX_DELETE_PER_RUN prevents accidental mass deletion
-- **Age-aware targeting** - MIN_AGE_DAYS prefers older emails while ensuring cleanup
-- **Emergency override** - EMERGENCY_THRESHOLD ignores age limits at critical storage levels
 - **Real size calculations** - Gmail API sizeEstimate replaces fake 50KB estimates
 - **Smart sampling** - 200-email sampling for accurate average size calculations
-- **Enhanced error handling** - No hardcoded fallbacks, safer abort on storage detection failure
-- **Conservative targeting** - Excludes starred and important emails by default
-- **Flexible folder targeting** - Easy configuration for any Gmail folder or label
+- **Enhanced error handling** - Safe abort on storage detection failure
+- **Simple targeting** - Direct folder targeting without complex query building
+- **Performance optimization** - 200-email batches with 500ms delays (4x speed improvement)
+- **Real-time precision** - Storage monitoring during cleanup prevents over-deletion
 - **Comprehensive logging** - Detailed execution information for troubleshooting
 - **Error notifications** - Email alerts when cleanup encounters problems
 
@@ -25,28 +24,29 @@ and this project adheres to Home Assistant versioning: `YYYY.MM.VV`.
 - **JavaScript compatibility** - Replaced ES6 const/let with var for Google Apps Script
 - **String handling** - Traditional concatenation replaces template literals
 - **Storage detection** - Script aborts safely if unable to determine storage usage
-- **Query logic** - CONSERVATIVE_QUERY now properly matches TARGET_FOLDER setting
+- **Simplified configuration** - Removed complex query logic, just TARGET_FOLDER
 - **Size estimation fallbacks** - Improved accuracy with 100KB base + 50KB per message
 
+### Removed
+- **Overcomplicated filtering** - Removed starred/important email exclusions
+- **Age-based restrictions** - Simplified to delete oldest first
+- **Complex targeting logic** - Streamlined to simple folder targeting
+
 ### Fixed
-- **Variable scoping errors** - Resolved "STORAGE_THRESHOLD is not defined" issues
-- **Target folder mismatch** - Fixed conservative query pointing to wrong folder
+- **Variable scoping errors** - Resolved JavaScript compatibility issues
+- **Target folder logic** - Simplified targeting eliminates configuration conflicts
 - **API failure handling** - Proper error handling when Gmail/Drive APIs unavailable
 
 ### Security
-- **Multiple safety layers** - DRY_RUN, caps, locks, and age preferences prevent accidents
-- **Conservative defaults** - Safe settings that protect important emails
-- **Audit-ready code** - Implements suggestions from Google Gemini and ChatGPT security audits
+- **Simple safety model** - DRY_RUN and caps provide protection
+- **Audit-ready code** - Clean, straightforward logic easy to verify
+- **No hidden behaviors** - What you configure is exactly what it does
 
 ### Performance
-- **Maintained 99.7% accuracy** - Mathematical precision with improved size calculations
+- **4x speed improvement** - Optimized batch processing and API calls
 - **Better API usage** - Efficient Gmail API calls with proper rate limiting
-- **Enhanced sampling** - More accurate average calculations with real message sizes
-
-### Documentation
-- **AI audit integration** - Notes about getting independent code safety verification
-- **Enhanced configuration** - Clear documentation of all new safety features
-- **Testing guidance** - Step-by-step dry-run testing instructions
+- **Enhanced sampling** - More accurate calculations with real message sizes
+- **Maintained mathematical precision** - Still calculates exact deletion needs
 
 ## [2025.08.2] - 2025-08-22
 
